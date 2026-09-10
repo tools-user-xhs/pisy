@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>外贸PI智能生成器 - 专业版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f2f5;
+            font-family: 'Segoe UI', 'Roboto', 'Times New Roman', serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            max-width: 1500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15);
+            overflow: hidden;
+            padding: 20px 28px 32px;
+        }
+
+        /* 提示条 - 已移除试用限制样式，保留为功能提示 */
+        .info-banner {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 60px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-weight: 500;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 16px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            color: #1e293b;
+        }
+        .lang-switch {
+            display: flex;
+            gap: 12px;
+        }
+        .lang-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .lang-btn.active {
+            background: #1e3a5f;
+            color: white;
+        }
+
+        .main-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .control-panel {
+            flex: 1.3;
+            min-width: 360px;
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 24px;
+        }
+        .preview-panel {
+            flex: 2;
+            min-width: 520px;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 20px 0 12px 0;
+            color: #0f2b3d;
+            border-left: 4px solid #f97316;
+            padding-left: 12px;
+        }
+
+        .upload-area {
+            background: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 16px;
+        }
+        .upload-area:hover {
+            background: #fef9e6;
+            border-color: #f97316;
+        }
+        .file-input-hidden {
+            display: none;
+        }
+        .supported-formats {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 8px;
+            background: #f1f5f9;
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .form-row {
+            margin-bottom: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-row label {
+            width: 100px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+        .form-row input, .form-row textarea {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+
+        /* 产品行样式 - 包含图片上传 */
+        .item-row {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            transition: 0.2s;
+        }
+        .item-main {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .item-main input {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+        }
+        .item-desc { flex: 2; min-width: 150px; }
+        .item-qty { flex: 0.8; min-width: 80px; }
+        .item-price { flex: 1; min-width: 100px; }
+        .item-amount { flex: 1; background: #f1f5f9; font-weight: bold; text-align: center; padding: 8px; border-radius: 8px; min-width: 100px; }
+        
+        .item-image-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px dashed #e2e8f0;
+        }
+        .image-preview {
+            width: 50px;
+            height: 50px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+        }
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+        .image-preview span {
+            font-size: 20px;
+            color: #94a3b8;
+        }
+        .upload-img-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .remove-img-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .btn-icon {
+            background: #fee2e2;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            color: #dc2626;
+            font-weight: bold;
+        }
+        .btn-add {
+            background: #e2e8f0;
+            margin-top: 8px;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0 15px;
+            flex-wrap: wrap;
+        }
+        .primary-btn {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .print-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+
+        /* PI预览样式 */
+        .pi-preview {
+            background: white;
+            padding: 28px 32px;
+            font-family: 'Times New Roman', '宋体', 'SimSun', serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            border: 1px solid #ccc;
+        }
+        .pi-main-title {
+            font-size: 22pt;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .seller-buyer-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+        }
+        .info-box { width: 48%; }
+        .info-box-title {
+            font-weight: bold;
+            background: #f8fafc;
+            padding: 6px 10px;
+        }
+        .pi-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .pi-table th, .pi-table td {
+            border: 1px solid #222;
+            padding: 8px 10px;
+            vertical-align: middle;
+        }
+        .pi-table th { background: #f8fafc; text-align: center; }
+        .product-img-cell img {
+            max-width: 60px;
+            max-height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .amount-right { text-align: right; }
+        .total-row { background: #fef9e6; font-weight: bold; }
+        .payment-info {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f1f5f9;
+            border-left: 4px solid #f97316;
+        }
+        .signature-section {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #999;
+        }
+        .footer-note {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 9pt;
+            color: #666;
+        }
+
+        @media print {
+            body * { visibility: hidden; }
+            .preview-panel, .preview-panel * { visibility: visible; }
+            .preview-panel { position: absolute; top: 0; left: 0; width: 100%; }
+            .control-panel, .info-banner, .header-bar, .action-buttons { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- 移除试用限制，改为友好的全功能提示 -->
+    <div class="info-banner" id="infoBanner">
+        <span>✨ 专业版已解锁 · 无限次生成 · 支持产品图片上传</span>
+        <span style="background: rgba(255,255,255,0.2); padding: 4px 16px; border-radius: 40px;">⚡ 全功能免费使用</span>
+    </div>
+
+    <div class="header-bar">
+        <h1 id="mainTitle">📄 Proforma Invoice Generator</h1>
+        <div class="lang-switch">
+            <button class="lang-btn active" data-lang="en">English</button>
+            <button class="lang-btn" data-lang="zh">中文</button>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <div class="control-panel">
+            <div class="upload-area" id="uploadZone">
+                <input type="file" id="fileUpload" accept=".txt,.csv" class="file-input-hidden" />
+                <label for="fileUpload" style="cursor:pointer; display:block;">
+                    📂 点击上传 PI 文件<br>
+                    <span style="font-size:12px;">支持 TXT / CSV 格式</span>
+                </label>
+                <div class="supported-formats">📎 支持格式: TXT, CSV (自动提取关键信息)</div>
+            </div>
+
+            <div class="section-title">✏️ 编辑关键信息</div>
+            <div class="form-row"><label>卖方 / Seller:</label><input type="text" id="sellerName" value="Guangzhou Sunrise Electronics Co., Ltd."></div>
+            <div class="form-row"><label>卖方地址:</label><input type="text" id="sellerAddr" value="No.88 Trade Road, Ningbo, China | Tel: +86 574 8888 6666"></div>
+            <div class="form-row"><label>买方 / Buyer:</label><input type="text" id="buyerName" value="London Digital Solutions Ltd."></div>
+            <div class="form-row"><label>买方地址:</label><input type="text" id="buyerAddr" value="22 Commerce Street, London, UK | VAT: GB123456789"></div>
+            <div class="form-row"><label>PI No.:</label><input type="text" id="invoiceNo" value="PI-2025-088"></div>
+            <div class="form-row"><label>Date:</label><input type="text" id="invoiceDate" value="2025-03-28"></div>
+            <div class="form-row"><label>付款条件:</label><input type="text" id="paymentTerm" value="T/T 30% Deposit, Balance before shipment"></div>
+            
+            <div class="section-title">📦 产品明细 (可上传图片)</div>
+            <div id="itemsContainer"></div>
+            <button class="btn-add" id="addItemBtn">+ 添加产品行</button>
+            
+            <div class="form-row"><label>备注/银行信息:</label><textarea id="remarks" rows="2">Please confirm PI and arrange deposit. Delivery within 25 days after deposit.
+Beneficiary: Sunrise Electronics, Account: 1234567890, SWIFT: SZCNCNBJ</textarea></div>
+            
+            <div class="action-buttons">
+                <button class="primary-btn" id="genBtn">✨ 生成PI</button>
+                <button class="print-btn" id="printBtn">🖨️ 打印</button>
+            </div>
+            <div class="info-note" style="font-size:12px; color:#64748b; margin-top:12px;">✅ 全功能永久免费使用 | 每项产品可上传图片，预览中会显示产品图片。<br>支持导入 CSV/TXT 文件，自动填充卖方/买方信息及产品明细。</div>
+        </div>
+
+        <div class="preview-panel">
+            <div id="piPreview" class="pi-preview">请点击"生成PI"预览单据</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== 移除所有试用限制，全功能永久可用 ====================
+    // 无需任何付费解锁逻辑，所有功能直接开放
+
+    let currentLang = 'en';
+    let itemsData = [
+        { desc: "Bluetooth 5.0 Headphones", qty: 500, price: 18.50, amount: 9250.00, imageUrl: null },
+        { desc: "Wireless Charging Pad", qty: 300, price: 12.80, amount: 3840.00, imageUrl: null },
+        { desc: "USB-C Cable 2m", qty: 1000, price: 2.50, amount: 2500.00, imageUrl: null },
+        { desc: "Smart Watch Band", qty: 200, price: 8.90, amount: 1780.00, imageUrl: null }
+    ];
+
+    // DOM 元素
+    const sellerName = document.getElementById('sellerName');
+    const sellerAddr = document.getElementById('sellerAddr');
+    const buyerName = document.getElementById('buyerName');
+    const buyerAddr = document.getElementById('buyerAddr');
+    const invoiceNoInput = document.getElementById('invoiceNo');
+    const dateInput = document.getElementById('invoiceDate');
+    const paymentTermInput = document.getElementById('paymentTerm');
+    const remarksText = document.getElementById('remarks');
+    const itemsContainer = document.getElementById('itemsContainer');
+    const addItemBtn = document.getElementById('addItemBtn');
+    const genBtn = document.getElementById('genBtn');
+    const printBtn = document.getElementById('printBtn');
+    const piPreviewDiv = document.getElementById('piPreview');
+    const fileUpload = document.getElementById('fileUpload');
+
+    // 渲染产品输入行（包含图片上传）
+    function renderItemsInputs() {
+        itemsContainer.innerHTML = '';
+        itemsData.forEach((item, idx) => {
+            const row = document.createElement('div'); row.className = 'item-row';
+            
+            // 主要输入区域
+            const mainDiv = document.createElement('div'); mainDiv.className = 'item-main';
+            const descInput = document.createElement('input'); descInput.type = 'text'; descInput.value = item.desc; descInput.className = 'item-desc';
+            descInput.placeholder = "产品名称";
+            descInput.addEventListener('change', (e) => { itemsData[idx].desc = e.target.value; updateAmount(idx); renderPreview(); });
+            
+            const qtyInput = document.createElement('input'); qtyInput.type = 'number'; qtyInput.step = '1'; qtyInput.value = item.qty; qtyInput.className = 'item-qty';
+            qtyInput.addEventListener('change', (e) => { itemsData[idx].qty = parseFloat(e.target.value) || 0; updateAmount(idx); renderPreview(); });
+            
+            const priceInput = document.createElement('input'); priceInput.type = 'number'; priceInput.step = '0.01'; priceInput.value = item.price; priceInput.className = 'item-price';
+            priceInput.addEventListener('change', (e) => { itemsData[idx].price = parseFloat(e.target.value) || 0; updateAmount(idx); renderPreview(); });
+            
+            const amountSpan = document.createElement('span'); amountSpan.className = 'item-amount'; amountSpan.innerText = item.amount.toFixed(2);
+            
+            const delBtn = document.createElement('button'); delBtn.innerText = '删除'; delBtn.className = 'btn-icon';
+            delBtn.addEventListener('click', () => { itemsData.splice(idx,1); renderItemsInputs(); renderPreview(); });
+            
+            mainDiv.append(descInput, qtyInput, priceInput, amountSpan, delBtn);
+            
+            // 图片上传区域
+            const imgDiv = document.createElement('div'); imgDiv.className = 'item-image-section';
+            const previewDiv = document.createElement('div'); previewDiv.className = 'image-preview';
+            if(item.imageUrl) {
+                const img = document.createElement('img'); img.src = item.imageUrl; img.style.maxWidth = '100%'; img.style.maxHeight = '100%';
+                previewDiv.appendChild(img);
+            } else {
+                const span = document.createElement('span'); span.innerText = '📷'; span.style.fontSize = '24px';
+                previewDiv.appendChild(span);
+            }
+            
+            const uploadBtn = document.createElement('button'); uploadBtn.innerText = '上传图片'; uploadBtn.className = 'upload-img-btn';
+            const fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.style.display = 'none';
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        itemsData[idx].imageUrl = ev.target.result;
+                        renderItemsInputs();
+                        renderPreview();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            const removeImgBtn = document.createElement('button'); removeImgBtn.innerText = '移除图片'; removeImgBtn.className = 'remove-img-btn';
+            removeImgBtn.addEventListener('click', () => {
+                itemsData[idx].imageUrl = null;
+                renderItemsInputs();
+                renderPreview();
+            });
+            
+            imgDiv.append(previewDiv, uploadBtn, fileInput, removeImgBtn);
+            row.append(mainDiv, imgDiv);
+            itemsContainer.appendChild(row);
+        });
+    }
+    
+    function updateAmount(idx) { itemsData[idx].amount = (itemsData[idx].qty || 0) * (itemsData[idx].price || 0); }
+
+    // 渲染预览（包含产品图片）
+    function renderPreview() {
+        itemsData.forEach((_,i) => updateAmount(i));
+        const subtotal = itemsData.reduce((s,i) => s + (i.amount || 0), 0);
+        const seller = sellerName.value.trim() || "SELLER COMPANY";
+        const sellerAddrText = sellerAddr.value.trim() || "";
+        const buyer = buyerName.value.trim() || "BUYER COMPANY";
+        const buyerAddrText = buyerAddr.value.trim() || "";
+        const invoiceNo = invoiceNoInput.value.trim() || "PI-2025-088";
+        const invDate = dateInput.value.trim() || new Date().toISOString().slice(0,10);
+        const paymentTerm = paymentTermInput.value.trim() || "T/T 30% Deposit";
+        const remarks = remarksText.value;
+        
+        let itemsHtml = `<table class="pi-table"><thead><tr><th style="width:5%">No.</th><th style="width:40%">品名 (Description)</th><th style="width:12%">图片</th><th style="width:10%">数量</th><th style="width:13%">单价(USD)</th><th style="width:20%">总价(USD)</th></tr></thead><tbody>`;
+        itemsData.forEach((item, idx) => {
+            const imgHtml = item.imageUrl ? `<img src="${item.imageUrl}" style="max-width:50px; max-height:50px; object-fit:cover; border-radius:6px;">` : '<span style="color:#999;">无图</span>';
+            itemsHtml += `<tr>
+                <td class="center-text">${idx+1}</td>
+                <td>${escapeHtml(item.desc)}</td>
+                <td class="center-text">${imgHtml}</td>
+                <td class="amount-right">${item.qty}</td>
+                <td class="amount-right">${item.price.toFixed(2)}</td>
+                <td class="amount-right">${item.amount.toFixed(2)}</td>
+            </tr>`;
+        });
+        itemsHtml += `<tr style="font-weight:bold; background:#f9f9f9;"><td colspan="5" style="text-align:right;">小计 (Subtotal) :</td><td class="amount-right">USD ${subtotal.toFixed(2)}</td></tr>`;
+        itemsHtml += `<tr class="total-row"><td colspan="5" style="text-align:right; font-size:12pt;">TOTAL AMOUNT :</td><td class="amount-right" style="font-weight:bold;">USD ${subtotal.toFixed(2)}</td></tr>`;
+        itemsHtml += `</tbody></table>`;
+        
+        piPreviewDiv.innerHTML = `
+            <div class="pi-main-title">PROFORMA INVOICE</div>
+            <div class="seller-buyer-section">
+                <div class="info-box"><div class="info-box-title">卖方 / SELLER</div><div class="info-box-content">${escapeHtml(seller)}<br>${escapeHtml(sellerAddrText)}</div></div>
+                <div class="info-box"><div class="info-box-title">买方 / BUYER</div><div class="info-box-content">${escapeHtml(buyer)}<br>${escapeHtml(buyerAddrText)}</div></div>
+            </div>
+            <div class="pi-details" style="display:flex; justify-content:space-between; margin-bottom:15px; background:#fef9e6; padding:8px 12px;"><span><strong>形式发票号 (PI No.) :</strong> ${escapeHtml(invoiceNo)}</span><span><strong>签发日期 (Date) :</strong> ${escapeHtml(invDate)}</span></div>
+            ${itemsHtml}
+            <div class="payment-info"><strong>贸易术语 / 付款条件 :</strong> ${escapeHtml(paymentTerm)}</div>
+            <div class="signature-section"><div>Authorized Signature</div><div>Company Stamp</div></div>
+            <div class="footer-note"><strong>银行 / 备注信息 :</strong><br>${escapeHtml(remarks).replace(/\n/g,'<br>')}<br>声明 : This Proforma Invoice is for reference only. Final price subject to contract & confirmation.</div>
+        `;
+    }
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+    // 生成按钮处理 - 无需任何次数消耗，直接渲染
+    function handleGenerate() {
+        renderPreview();
+        // 显示友好提示（不涉及次数）
+        const hintDiv = document.querySelector('.info-note');
+        const originalHTML = hintDiv.innerHTML;
+        hintDiv.style.color = "#10b981";
+        hintDiv.style.fontWeight = "bold";
+        const successMsg = currentLang === 'zh' ? '✅ 发票已生成！' : '✅ Invoice generated!';
+        hintDiv.innerHTML = successMsg + '<br>全功能永久免费使用 | 支持图片上传与文件导入。';
+        setTimeout(() => { 
+            hintDiv.innerHTML = originalHTML; 
+            hintDiv.style.color = ""; 
+            hintDiv.style.fontWeight = "";
+        }, 1800);
+    }
+
+    // 打印功能
+    function printInvoice() {
+        const previewElement = document.getElementById('piPreview');
+        if (!previewElement.innerText.trim() || previewElement.innerText.includes("请点击")) {
+            alert("请先点击「生成PI」按钮生成发票内容");
+            return;
+        }
+        const printWindow = window.open('', '_blank', 'width=900,height=700,scrollbars=yes');
+        if (printWindow) {
+            printWindow.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Proforma Invoice</title><style>');
+            printWindow.document.write(`
+                * { margin:0; padding:0; box-sizing:border-box; }
+                body { font-family: 'Times New Roman', '宋体', SimSun, serif; padding: 15mm; }
+                .pi-main-title { font-size: 22pt; font-weight: bold; text-align: center; margin-bottom: 20px; }
+                .seller-buyer-section { display: flex; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 15px; }
+                .info-box { width: 48%; }
+                .info-box-title { font-weight: bold; background: #f5f5f5; padding: 4px 8px; }
+                .pi-details { display: flex; justify-content: space-between; margin-bottom: 20px; background: #fef9e6; padding: 10px; }
+                .pi-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                .pi-table th, .pi-table td { border: 1px solid #222; padding: 8px; text-align: left; }
+                .pi-table th { background: #f0f0f0; text-align: center; }
+                .amount-right { text-align: right; }
+                .center-text { text-align: center; }
+                .total-row { background: #fef9e6; font-weight: bold; }
+                .payment-info { margin: 15px 0; padding: 10px; background: #f1f5f9; border-left: 4px solid #f97316; }
+                .signature-section { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px dashed #999; }
+                .footer-note { margin-top: 15px; text-align: center; font-size: 9pt; }
+                @media print { body { padding: 0; margin: 0; } }
+            `);
+            printWindow.document.write('</style></head><body>');
+            printWindow.document.write(previewElement.innerHTML);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.onload = function() { printWindow.print(); };
+        } else {
+            alert("请允许弹出窗口，然后重试打印");
+        }
+    }
+
+    // 文件导入（自动填充字段和产品）
+    function handleFileUpload(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const content = e.target.result;
+            const lines = content.split(/\r?\n/);
+            let newItems = [];
+            for(let line of lines) {
+                // 提取关键字段
+                if(line.match(/Seller:\s*(.+)/i)) sellerName.value = line.match(/Seller:\s*(.+)/i)[1].trim();
+                if(line.match(/Buyer:\s*(.+)/i)) buyerName.value = line.match(/Buyer:\s*(.+)/i)[1].trim();
+                if(line.match(/Invoice\s*No:\s*(.+)/i)) invoiceNoInput.value = line.match(/Invoice\s*No:\s*(.+)/i)[1].trim();
+                if(line.match(/Date:\s*(.+)/i)) dateInput.value = line.match(/Date:\s*(.+)/i)[1].trim();
+                if(line.match(/Payment\s*Term:\s*(.+)/i)) paymentTermInput.value = line.match(/Payment\s*Term:\s*(.+)/i)[1].trim();
+                // CSV格式: 产品描述,数量,单价,金额(可选)
+                const commaMatch = line.match(/^([^,]+),(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)(?:,(\d+(?:\.\d+)?))?/);
+                if(commaMatch && !line.toLowerCase().includes('product') && !line.toLowerCase().includes('description')) {
+                    const desc = commaMatch[1].trim();
+                    const qty = parseFloat(commaMatch[2]);
+                    const price = parseFloat(commaMatch[3]);
+                    if(desc && !isNaN(qty) && !isNaN(price) && qty > 0 && price >= 0) {
+                        newItems.push({ desc, qty, price, amount: qty * price, imageUrl: null });
+                    }
+                }
+            }
+            if(newItems.length > 0) {
+                itemsData = newItems;
+            } else {
+                // 如果没有解析到产品，保留原数据但给出提示
+                if(itemsData.length === 0) {
+                    itemsData = [
+                        { desc: "Sample Product", qty: 100, price: 10.00, amount: 1000, imageUrl: null }
+                    ];
+                }
+                alert("文件未检测到有效产品行，保留原有产品列表。请确保CSV格式为：产品名称,数量,单价");
+            }
+            renderItemsInputs();
+            renderPreview();
+            alert("文件导入成功！已更新卖方/买方/发票号/产品明细等信息。");
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
+
+    // 事件绑定
+    addItemBtn.addEventListener('click', () => { 
+        itemsData.push({ desc: "New Product", qty: 1, price: 0, amount: 0, imageUrl: null }); 
+        renderItemsInputs(); 
+        renderPreview(); 
+    });
+    genBtn.addEventListener('click', handleGenerate);
+    printBtn.addEventListener('click', printInvoice);
+    fileUpload.addEventListener('change', (e) => { if(e.target.files.length) handleFileUpload(e.target.files[0]); });
+    document.getElementById('uploadZone').addEventListener('click', () => fileUpload.click());
+    [sellerName, sellerAddr, buyerName, buyerAddr, invoiceNoInput, dateInput, paymentTermInput, remarksText].forEach(inp => inp.addEventListener('input', () => renderPreview()));
+
+    // 语言切换
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentLang = btn.getAttribute('data-lang');
+            const titles = { en: "📄 Proforma Invoice Generator", zh: "📄 形式发票智能生成器" };
+            const hints = { en: "✅ Full features permanently free | Each product supports image upload.<br>Support CSV/TXT import.", zh: "✅ 全功能永久免费使用 | 每项产品可上传图片，预览中会显示产品图片。<br>支持导入 CSV/TXT 文件。" };
+            document.getElementById('mainTitle').innerText = titles[currentLang];
+            const hintDiv = document.querySelector('.info-note');
+            hintDiv.innerHTML = hints[currentLang];
+            renderPreview();
+        });
+    });
+
+    // 初始化
+    renderItemsInputs();
+    renderPreview();
+</script>
+</body>
+</html>
